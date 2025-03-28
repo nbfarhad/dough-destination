@@ -2,7 +2,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { WhatsApp, Facebook, MessageSquare, Phone } from "lucide-react";
+import { MessageCircle, Facebook, MessageSquare, Phone } from "lucide-react";
 
 const AlternativeOrdering: React.FC = () => {
   return (
@@ -21,7 +21,7 @@ const AlternativeOrdering: React.FC = () => {
             className="flex items-center justify-start gap-2 h-auto py-3"
             onClick={() => window.open("https://wa.me/1234567890", "_blank")}
           >
-            <WhatsApp className="h-5 w-5 text-green-600" />
+            <MessageCircle className="h-5 w-5 text-green-600" />
             <div className="text-left">
               <div className="font-medium">WhatsApp</div>
               <div className="text-xs text-muted-foreground">Message us to place your order</div>

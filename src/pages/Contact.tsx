@@ -3,7 +3,7 @@ import React from "react";
 import Layout from "@/components/layout/Layout";
 import ContactForm from "@/components/contact/ContactForm";
 import { Card, CardContent } from "@/components/ui/card";
-import { Facebook, Instagram, Phone, MessageSquare, WhatsApp } from "lucide-react";
+import { Facebook, Instagram, Phone, MessageSquare, MessageCircle } from "lucide-react";
 
 const Contact: React.FC = () => {
   return (
@@ -79,7 +79,7 @@ const Contact: React.FC = () => {
                   </div>
                   
                   <div className="flex items-center gap-3">
-                    <WhatsApp className="h-5 w-5 text-pizza-primary" />
+                    <MessageCircle className="h-5 w-5 text-pizza-primary" />
                     <a href="https://wa.me/1234567890" className="text-muted-foreground hover:text-pizza-primary">
                       WhatsApp Chat
                     </a>

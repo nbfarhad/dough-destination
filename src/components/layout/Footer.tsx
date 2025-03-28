@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Link } from "react-router-dom";
-import { Facebook, Instagram, Phone, MessageSquare, WhatsApp } from "lucide-react";
+import { Facebook, Instagram, Phone, MessageSquare, MessageCircle } from "lucide-react";
 
 const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
@@ -23,7 +23,7 @@ const Footer: React.FC = () => {
                 <Instagram size={20} />
               </a>
               <a href="https://wa.me/1234567890" className="text-white hover:text-pizza-secondary transition-colors" aria-label="WhatsApp">
-                <WhatsApp size={20} />
+                <MessageCircle size={20} />
               </a>
             </div>
           </div>
