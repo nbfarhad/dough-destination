@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/components/ui/use-toast";
-import { supabase, mockSupabaseOperation } from "@/lib/supabase";
+import { mysqlQuery } from "@/lib/supabase";
 
 interface FeedbackFormData {
   name: string;
@@ -48,31 +48,17 @@ const FeedbackForm: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      // Save feedback to Supabase
-      try {
-        const { error } = await supabase
-          .from('feedback')
-          .insert([
-            { 
-              name: formData.name,
-              email: formData.email,
-              rating: parseInt(formData.rating),
-              order_number: formData.orderNumber || null,
-              feedback: formData.feedback,
-              created_at: new Date()
-            }
-          ]);
+      // Save feedback using MySQL instead of Supabase
+      const { error } = await mysqlQuery('feedback', 'insert', { 
+        name: formData.name,
+        email: formData.email,
+        rating: parseInt(formData.rating),
+        order_number: formData.orderNumber || null,
+        feedback: formData.feedback,
+        created_at: new Date().toISOString()
+      });
 
-        if (error) throw error;
-      } catch (error) {
-        console.warn('Using mock Supabase operation for feedback', error);
-        await mockSupabaseOperation('insert_feedback', {
-          name: formData.name,
-          email: formData.email,
-          rating: parseInt(formData.rating),
-          feedback: formData.feedback
-        });
-      }
+      if (error) throw error;
       
       toast({
         title: "Feedback submitted",

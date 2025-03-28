@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Layout from "@/components/layout/Layout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { supabase } from "@/lib/supabase";
+import { mysqlQuery, supabase } from "@/lib/supabase";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -36,15 +36,24 @@ const Admin: React.FC = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const { data, error } = await supabase
-          .from('orders')
-          .select('*')
-          .order('created_at', { ascending: false });
+        const { data, error } = await mysqlQuery('orders', 'select');
 
         if (error) throw error;
         setOrders(data || []);
       } catch (error) {
         console.error('Error fetching orders:', error);
+        
+        try {
+          const { data, error } = await supabase
+            .from('orders')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+          if (error) throw error;
+          setOrders(data || []);
+        } catch (supabaseError) {
+          console.error('Error fetching orders from Supabase:', supabaseError);
+        }
       } finally {
         setLoading(prev => ({ ...prev, orders: false }));
       }
@@ -52,15 +61,24 @@ const Admin: React.FC = () => {
 
     const fetchFeedback = async () => {
       try {
-        const { data, error } = await supabase
-          .from('feedback')
-          .select('*')
-          .order('created_at', { ascending: false });
+        const { data, error } = await mysqlQuery('feedback', 'select');
 
         if (error) throw error;
         setFeedback(data || []);
       } catch (error) {
-        console.error('Error fetching feedback:', error);
+        console.error('Error fetching feedback from MySQL:', error);
+        
+        try {
+          const { data, error } = await supabase
+            .from('feedback')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+          if (error) throw error;
+          setFeedback(data || []);
+        } catch (supabaseError) {
+          console.error('Error fetching feedback from Supabase:', supabaseError);
+        }
       } finally {
         setLoading(prev => ({ ...prev, feedback: false }));
       }
