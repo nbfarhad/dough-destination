@@ -44,7 +44,7 @@ export const mysqlQuery = async (table: string, operation: string, data?: any) =
       case 'delete':
         // Simulate a delete operation
         console.log(`Simulating DELETE from ${table} with ID ${data?.id}`);
-        return { data: { id: data?.id }, error: null };
+        return { data: [{ id: data?.id }], error: null };
       default:
         throw new Error(`Unsupported operation: ${operation}`);
     }

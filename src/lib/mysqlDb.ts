@@ -71,6 +71,27 @@ const mockFeedback = [
   }
 ];
 
+const mockOrders = [
+  {
+    id: 'order1',
+    order_number: 'ORD12345',
+    customer_name: 'John Doe',
+    order_type: 'delivery',
+    total_amount: 35.99,
+    status: 'completed',
+    created_at: '2023-06-15T10:30:00Z'
+  },
+  {
+    id: 'order2',
+    order_number: 'ORD12346',
+    customer_name: 'Jane Smith',
+    order_type: 'pickup',
+    total_amount: 22.50,
+    status: 'pending',
+    created_at: '2023-06-16T14:45:00Z'
+  }
+];
+
 // Simulated MySQL query function for browser environment
 export async function query(sql: string, params: any[] = []) {
   console.log('Mock MySQL query:', sql, params);
@@ -84,6 +105,8 @@ export async function query(sql: string, params: any[] = []) {
     return { data: mockPromotions, error: null };
   } else if (sql.includes('feedback')) {
     return { data: mockFeedback, error: null };
+  } else if (sql.includes('orders')) {
+    return { data: mockOrders, error: null };
   } else {
     // Default response for other queries
     return { data: [], error: null };

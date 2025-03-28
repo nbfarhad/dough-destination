@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import Layout from "@/components/layout/Layout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -39,7 +40,12 @@ const Admin: React.FC = () => {
         const { data, error } = await mysqlQuery('orders', 'select');
 
         if (error) throw error;
-        setOrders(data || []);
+        // Fix the type issue by ensuring we're setting an array of Order objects
+        if (data && Array.isArray(data)) {
+          setOrders(data as Order[]);
+        } else {
+          setOrders([]);
+        }
       } catch (error) {
         console.error('Error fetching orders:', error);
         
@@ -50,7 +56,12 @@ const Admin: React.FC = () => {
             .order('created_at', { ascending: false });
 
           if (error) throw error;
-          setOrders(data || []);
+          // Same fix here
+          if (data && Array.isArray(data)) {
+            setOrders(data as Order[]);
+          } else {
+            setOrders([]);
+          }
         } catch (supabaseError) {
           console.error('Error fetching orders from Supabase:', supabaseError);
         }
@@ -64,7 +75,12 @@ const Admin: React.FC = () => {
         const { data, error } = await mysqlQuery('feedback', 'select');
 
         if (error) throw error;
-        setFeedback(data || []);
+        // Fix the type issue by ensuring we're setting an array of Feedback objects
+        if (data && Array.isArray(data)) {
+          setFeedback(data as Feedback[]);
+        } else {
+          setFeedback([]);
+        }
       } catch (error) {
         console.error('Error fetching feedback from MySQL:', error);
         
@@ -75,7 +91,12 @@ const Admin: React.FC = () => {
             .order('created_at', { ascending: false });
 
           if (error) throw error;
-          setFeedback(data || []);
+          // Same fix here
+          if (data && Array.isArray(data)) {
+            setFeedback(data as Feedback[]);
+          } else {
+            setFeedback([]);
+          }
         } catch (supabaseError) {
           console.error('Error fetching feedback from Supabase:', supabaseError);
         }
