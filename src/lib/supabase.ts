@@ -1,6 +1,6 @@
 
 import { createClient } from '@supabase/supabase-js';
-import { query, checkDbConnection, mockImageUploadLocally } from './mysqlDb';
+import { query, checkDbConnection, mockImageUploadLocally, createTablesIfNotExist } from './mysqlDb';
 
 // Default values for local development - replace these with your actual Supabase credentials
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://your-project-url.supabase.co';
@@ -16,6 +16,11 @@ let isLocalDbAvailable = true;
 checkDbConnection().then(available => {
   console.log('MySQL database available:', available);
   isLocalDbAvailable = available;
+  
+  // If database is available, ensure tables exist
+  if (available) {
+    createTablesIfNotExist();
+  }
 });
 
 // Override Supabase operations with MySQL operations

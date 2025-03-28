@@ -119,6 +119,103 @@ export async function checkDbConnection() {
   return true;
 }
 
+// Create table schema helper functions - using VARCHAR(36) for ID fields instead of UUID
+export function createTablesIfNotExist() {
+  // These SQL statements use VARCHAR(36) instead of UUID type for compatibility
+  const createMenuCategoriesTable = `
+    CREATE TABLE IF NOT EXISTS menu_categories (
+      id VARCHAR(36) PRIMARY KEY,
+      name VARCHAR(100) NOT NULL,
+      description TEXT,
+      sort_order INT NOT NULL DEFAULT 0,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    )
+  `;
+
+  const createMenuItemsTable = `
+    CREATE TABLE IF NOT EXISTS menu_items (
+      id VARCHAR(36) PRIMARY KEY,
+      name VARCHAR(100) NOT NULL,
+      description TEXT,
+      price DECIMAL(10, 2) NOT NULL,
+      image_url VARCHAR(255),
+      category_id VARCHAR(36),
+      vegetarian BOOLEAN DEFAULT FALSE,
+      spicy BOOLEAN DEFAULT FALSE,
+      available BOOLEAN DEFAULT TRUE,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      FOREIGN KEY (category_id) REFERENCES menu_categories(id)
+    )
+  `;
+
+  const createPromotionsTable = `
+    CREATE TABLE IF NOT EXISTS promotions (
+      id VARCHAR(36) PRIMARY KEY,
+      title VARCHAR(100) NOT NULL,
+      description TEXT,
+      image_url VARCHAR(255),
+      start_date DATE NOT NULL,
+      end_date DATE,
+      discount_percentage DECIMAL(5, 2),
+      discount_amount DECIMAL(10, 2),
+      active BOOLEAN DEFAULT TRUE,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    )
+  `;
+
+  const createFeedbackTable = `
+    CREATE TABLE IF NOT EXISTS feedback (
+      id VARCHAR(36) PRIMARY KEY,
+      name VARCHAR(100) NOT NULL,
+      email VARCHAR(100) NOT NULL,
+      rating INT NOT NULL,
+      feedback TEXT,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `;
+
+  const createOrdersTable = `
+    CREATE TABLE IF NOT EXISTS orders (
+      id VARCHAR(36) PRIMARY KEY,
+      order_number VARCHAR(20) NOT NULL,
+      customer_name VARCHAR(100) NOT NULL,
+      customer_email VARCHAR(100),
+      customer_phone VARCHAR(20),
+      order_type ENUM('delivery', 'pickup', 'dine-in') NOT NULL,
+      delivery_address TEXT,
+      payment_method ENUM('cash', 'card', 'online') NOT NULL,
+      notes TEXT,
+      subtotal DECIMAL(10, 2) NOT NULL,
+      delivery_fee DECIMAL(10, 2) DEFAULT 0,
+      total_amount DECIMAL(10, 2) NOT NULL,
+      status ENUM('pending', 'confirmed', 'processing', 'ready', 'completed', 'cancelled') NOT NULL DEFAULT 'pending',
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    )
+  `;
+
+  const createOrderItemsTable = `
+    CREATE TABLE IF NOT EXISTS order_items (
+      id VARCHAR(36) PRIMARY KEY,
+      order_id VARCHAR(36) NOT NULL,
+      item_id VARCHAR(36) NOT NULL,
+      item_name VARCHAR(100) NOT NULL,
+      quantity INT NOT NULL,
+      price DECIMAL(10, 2) NOT NULL,
+      total DECIMAL(10, 2) NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
+    )
+  `;
+
+  console.log('Mock table creation in browser environment - would execute these queries on a real server');
+  // In a real server environment, these queries would be executed
+  return true;
+}
+
 // Helper function for menu items
 export async function getMenuItems() {
   return query(`
