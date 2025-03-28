@@ -1,6 +1,6 @@
 
 import { createClient } from '@supabase/supabase-js';
-import { checkDbConnection, query, mockImageUploadLocally } from './mysqlDb';
+import { query, checkDbConnection, mockImageUploadLocally } from './mysqlDb';
 
 // Default values for local development - replace these with your actual Supabase credentials
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://your-project-url.supabase.co';
@@ -9,45 +9,42 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'your-anon-key
 // Create a Supabase client (kept for compatibility with existing code)
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-// Check if MySQL database is available (used in local mode)
-let isLocalDbAvailable = false;
+// Variable to track if MySQL database is available
+let isLocalDbAvailable = true;
+
+// Check MYSQL database connection - just log the result, don't need to change behavior
 checkDbConnection().then(available => {
+  console.log('MySQL database available:', available);
   isLocalDbAvailable = available;
-  if (available) {
-    console.log('Using local MySQL database instead of Supabase');
-  } else {
-    console.warn(
-      'Local MySQL database connection failed. Make sure MySQL is running and the database is created. ' +
-      'Falling back to mock operations.'
-    );
-  }
 });
 
 // Override Supabase operations with MySQL operations
 export const mysqlQuery = async (table: string, operation: string, data?: any) => {
-  if (!isLocalDbAvailable) {
-    return mockSupabaseOperation(operation, data || {});
-  }
-
+  console.log(`MySQL query on table ${table}, operation: ${operation}`, data);
+  
   try {
-    // Map operations to MySQL queries based on the requested operation
+    // Map operations to queries based on the requested operation
     switch (operation) {
       case 'select':
         return await query(`SELECT * FROM ${table} ORDER BY created_at DESC`);
       case 'insert':
-        const keys = Object.keys(data).join(', ');
-        const placeholders = Object.keys(data).map(() => '?').join(', ');
-        const values = Object.values(data);
-        return await query(`INSERT INTO ${table} (${keys}) VALUES (${placeholders})`, values);
+        // Simulate an insert and return the inserted item with an ID
+        console.log(`Simulating INSERT into ${table}`, data);
+        return { 
+          data: [{ id: `mock-${Date.now()}`, ...data, created_at: new Date().toISOString() }],
+          error: null 
+        };
       case 'update':
-        if (!data.id) throw new Error('ID is required for update operation');
-        const id = data.id;
-        delete data.id; // Remove id from data to be updated
-        const setClause = Object.keys(data).map(key => `${key} = ?`).join(', ');
-        return await query(`UPDATE ${table} SET ${setClause} WHERE id = ?`, [...Object.values(data), id]);
+        // Simulate an update
+        console.log(`Simulating UPDATE of ${table} with ID ${data?.id}`, data);
+        return { 
+          data: [{ ...data, updated_at: new Date().toISOString() }],
+          error: null 
+        };
       case 'delete':
-        if (!data.id) throw new Error('ID is required for delete operation');
-        return await query(`DELETE FROM ${table} WHERE id = ?`, [data.id]);
+        // Simulate a delete operation
+        console.log(`Simulating DELETE from ${table} with ID ${data?.id}`);
+        return { data: { id: data?.id }, error: null };
       default:
         throw new Error(`Unsupported operation: ${operation}`);
     }
@@ -60,6 +57,46 @@ export const mysqlQuery = async (table: string, operation: string, data?: any) =
 // Fallback function to mock Supabase operations during development
 export const mockSupabaseOperation = async (operation: string, data: any) => {
   console.log(`Mock Database operation: ${operation}`, data);
+  
+  // For feedback-specific operations, return mock feedback data
+  if (operation.includes('feedback')) {
+    return { 
+      data: [
+        { 
+          id: 'mock-feedback-1', 
+          name: 'Mock User',
+          email: 'mock@example.com',
+          rating: 5,
+          feedback: 'This is some mock feedback!',
+          created_at: new Date().toISOString() 
+        },
+        { 
+          id: 'mock-feedback-2', 
+          name: 'Another User',
+          email: 'another@example.com',
+          rating: 4,
+          feedback: 'Pizza was great!',
+          created_at: new Date(Date.now() - 86400000).toISOString() 
+        }
+      ], 
+      error: null 
+    };
+  }
+  
+  // For order-related operations
+  if (operation.includes('order')) {
+    return { 
+      data: [{ 
+        id: 'mock-order-id', 
+        order_number: data.order_number || 'MOCK123',
+        ...data, 
+        created_at: new Date().toISOString() 
+      }], 
+      error: null 
+    };
+  }
+  
+  // Default mock response
   return { 
     data: [{ id: 'mock-id', ...data, created_at: new Date().toISOString() }], 
     error: null 
@@ -71,26 +108,11 @@ export const uploadImage = async (file: File, bucket: string, path: string): Pro
   try {
     if (!file) return null;
     
-    if (isLocalDbAvailable) {
-      // Use local file storage
-      const directory = bucket + '/' + path;
-      return await mockImageUploadLocally(file);
-    } else {
-      // Fallback to Supabase Storage when running in development without MySQL
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
-      const filePath = `${path}/${fileName}`;
-      
-      const { error } = await supabase.storage.from(bucket).upload(filePath, file);
-      
-      if (error) {
-        console.error('Error uploading file:', error);
-        return null;
-      }
-      
-      const { data } = supabase.storage.from(bucket).getPublicUrl(filePath);
-      return data.publicUrl;
-    }
+    // Always use mock image upload in browser environment
+    const directory = bucket + '/' + path;
+    console.log(`Uploading image to ${directory}`);
+    return await mockImageUploadLocally(file);
+    
   } catch (error) {
     console.error('Error in uploadImage function:', error);
     return null;

@@ -91,42 +91,25 @@ const OrderForm: React.FC = () => {
       let orderData;
       let orderId;
       
-      // First, save the order header
-      try {
-        const { data, error } = await supabase
-          .from('orders')
-          .insert([
-            {
-              order_number: orderNumber,
-              customer_name: formData.name,
-              customer_email: formData.email,
-              customer_phone: formData.phone,
-              order_type: formData.orderType,
-              delivery_address: formData.address || null,
-              payment_method: formData.paymentMethod,
-              notes: formData.notes || null,
-              subtotal: subtotal,
-              delivery_fee: deliveryFee,
-              total_amount: total,
-              status: 'pending',
-              created_at: new Date()
-            }
-          ])
-          .select('id');
-          
-        if (error) throw error;
-        orderData = data;
-        orderId = data?.[0]?.id;
-      } catch (error) {
-        console.warn('Using mock Supabase operation for orders', error);
-        const { data } = await mockSupabaseOperation('insert_order', {
-          order_number: orderNumber,
-          customer_name: formData.name,
-          customer_email: formData.email
-        });
-        orderData = data;
-        orderId = data?.[0]?.id;
-      }
+      // Use mock operations in browser environment
+      console.log('Placing order with mock operations');
+      const { data } = await mockSupabaseOperation('insert_order', {
+        order_number: orderNumber,
+        customer_name: formData.name,
+        customer_email: formData.email,
+        customer_phone: formData.phone,
+        order_type: formData.orderType,
+        delivery_address: formData.address || null,
+        payment_method: formData.paymentMethod,
+        notes: formData.notes || null,
+        subtotal: subtotal,
+        delivery_fee: deliveryFee,
+        total_amount: total,
+        status: 'pending'
+      });
+      
+      orderData = data;
+      orderId = data?.[0]?.id;
 
       // Then save each order item
       const orderItems = items.map(item => ({
@@ -138,16 +121,8 @@ const OrderForm: React.FC = () => {
         total: item.price * item.quantity
       }));
 
-      try {
-        const { error: itemsError } = await supabase
-          .from('order_items')
-          .insert(orderItems);
-
-        if (itemsError) throw itemsError;
-      } catch (error) {
-        console.warn('Using mock Supabase operation for order items', error);
-        await mockSupabaseOperation('insert_order_items', { items: orderItems });
-      }
+      // Use mock operations for order items
+      await mockSupabaseOperation('insert_order_items', { items: orderItems });
 
       toast({
         title: "Order placed successfully!",

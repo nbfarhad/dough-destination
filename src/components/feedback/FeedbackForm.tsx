@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -5,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/components/ui/use-toast";
-import { mysqlQuery } from "@/lib/supabase";
+import { mysqlQuery, mockSupabaseOperation } from "@/lib/supabase";
 
 interface FeedbackFormData {
   name: string;
@@ -48,7 +49,7 @@ const FeedbackForm: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      // Save feedback using MySQL instead of Supabase
+      // In browser, this will use the mock implementation
       const { error } = await mysqlQuery('feedback', 'insert', { 
         name: formData.name,
         email: formData.email,
