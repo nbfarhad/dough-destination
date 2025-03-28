@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/lib/supabase";
 
 interface FeedbackFormData {
   name: string;
@@ -43,25 +44,55 @@ const FeedbackForm: React.FC = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate form submission
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      // Save feedback to Supabase
+      const { error } = await supabase
+        .from('feedback')
+        .insert([
+          { 
+            name: formData.name,
+            email: formData.email,
+            rating: parseInt(formData.rating),
+            order_number: formData.orderNumber || null,
+            feedback: formData.feedback,
+            created_at: new Date()
+          }
+        ]);
+
+      if (error) {
+        console.error('Error submitting feedback:', error);
+        toast({
+          title: "Error submitting feedback",
+          description: error.message || "Please try again later",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Feedback submitted",
+          description: "Thank you for your feedback!",
+        });
+        setFormData({
+          name: "",
+          email: "",
+          rating: "5",
+          orderNumber: "",
+          feedback: "",
+        });
+      }
+    } catch (error) {
+      console.error('Error:', error);
       toast({
-        title: "Feedback submitted",
-        description: "Thank you for your feedback!",
+        title: "Error submitting feedback",
+        description: "Please try again later",
+        variant: "destructive",
       });
-      setFormData({
-        name: "",
-        email: "",
-        rating: "5",
-        orderNumber: "",
-        feedback: "",
-      });
-    }, 1000);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

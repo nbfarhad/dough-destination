@@ -2,9 +2,12 @@
 import React from "react";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 const OrderSuccess: React.FC = () => {
+  const location = useLocation();
+  const orderNumber = location.state?.orderNumber || Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+
   return (
     <Layout>
       <div className="pizza-container py-16">
@@ -19,7 +22,7 @@ const OrderSuccess: React.FC = () => {
             <h2 className="text-xl font-semibold mb-4">Order Details</h2>
             <p className="mb-2">
               <span className="font-medium">Order Number:</span>{" "}
-              <span className="text-pizza-primary">{Math.floor(Math.random() * 10000).toString().padStart(4, '0')}</span>
+              <span className="text-pizza-primary">{orderNumber}</span>
             </p>
             <p className="mb-2">
               <span className="font-medium">Estimated Time:</span>{" "}

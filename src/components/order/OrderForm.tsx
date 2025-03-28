@@ -8,6 +8,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/components/ui/use-toast";
 import { useCart } from "@/hooks/useCart";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/lib/supabase";
 
 interface OrderFormData {
   name: string;
@@ -61,7 +62,7 @@ const OrderForm: React.FC = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (items.length === 0) {
@@ -84,16 +85,72 @@ const OrderForm: React.FC = () => {
 
     setIsSubmitting(true);
 
-    // Simulate order processing
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      // Generate a unique order number
+      const orderNumber = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+      
+      // First, save the order header
+      const { data: orderData, error: orderError } = await supabase
+        .from('orders')
+        .insert([
+          {
+            order_number: orderNumber,
+            customer_name: formData.name,
+            customer_email: formData.email,
+            customer_phone: formData.phone,
+            order_type: formData.orderType,
+            delivery_address: formData.address || null,
+            payment_method: formData.paymentMethod,
+            notes: formData.notes || null,
+            subtotal: subtotal,
+            delivery_fee: deliveryFee,
+            total_amount: total,
+            status: 'pending',
+            created_at: new Date()
+          }
+        ])
+        .select('id');
+
+      if (orderError) {
+        throw orderError;
+      }
+
+      const orderId = orderData?.[0]?.id;
+
+      // Then save each order item
+      const orderItems = items.map(item => ({
+        order_id: orderId,
+        item_id: item.id,
+        item_name: item.name,
+        quantity: item.quantity,
+        price: item.price,
+        total: item.price * item.quantity
+      }));
+
+      const { error: itemsError } = await supabase
+        .from('order_items')
+        .insert(orderItems);
+
+      if (itemsError) {
+        throw itemsError;
+      }
+
       toast({
         title: "Order placed successfully!",
         description: `Your ${formData.orderType} order will be ready shortly.`,
       });
       clearCart();
-      navigate("/order-success");
-    }, 1500);
+      navigate("/order-success", { state: { orderNumber } });
+    } catch (error: any) {
+      console.error('Error submitting order:', error);
+      toast({
+        title: "Error placing order",
+        description: error.message || "Please try again later",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
