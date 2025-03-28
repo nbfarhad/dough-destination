@@ -5,6 +5,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/lib/supabase";
 import { format } from "date-fns";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
+import { PizzaSlice, Tag, Percent, BarChart } from "lucide-react";
 
 interface Order {
   id: string;
@@ -29,6 +32,7 @@ const Admin: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [feedback, setFeedback] = useState<Feedback[]>([]);
   const [loading, setLoading] = useState({ orders: true, feedback: true });
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -81,16 +85,73 @@ const Admin: React.FC = () => {
         <div className="pizza-container">
           <h1 className="section-title">Admin Dashboard</h1>
           <p className="section-subtitle">
-            Manage orders and view customer feedback
+            Manage orders, menu items, promotions, and view customer feedback
           </p>
         </div>
       </div>
 
       <div className="pizza-container py-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          <Card className="hover:shadow-md transition-shadow">
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center">
+                <PizzaSlice className="mr-2 h-5 w-5 text-pizza-primary" />
+                Menu Management
+              </CardTitle>
+              <CardDescription>Manage menu items and categories</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button 
+                onClick={() => navigate('/admin/menu')}
+                className="w-full bg-pizza-primary hover:bg-pizza-primary/90"
+              >
+                Manage Menu
+              </Button>
+            </CardContent>
+          </Card>
+          
+          <Card className="hover:shadow-md transition-shadow">
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center">
+                <Percent className="mr-2 h-5 w-5 text-pizza-secondary" />
+                Promotions
+              </CardTitle>
+              <CardDescription>Manage promotional offers</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button 
+                onClick={() => navigate('/admin/promotions')}
+                className="w-full bg-pizza-secondary hover:bg-pizza-secondary/90"
+              >
+                Manage Promotions
+              </Button>
+            </CardContent>
+          </Card>
+          
+          <Card className="hover:shadow-md transition-shadow">
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center">
+                <BarChart className="mr-2 h-5 w-5 text-blue-500" />
+                Analytics
+              </CardTitle>
+              <CardDescription>View sales and customer metrics</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button 
+                onClick={() => {}} 
+                className="w-full"
+                disabled
+              >
+                Coming Soon
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+
         <Tabs defaultValue="orders">
           <TabsList className="mb-8">
-            <TabsTrigger value="orders">Orders</TabsTrigger>
-            <TabsTrigger value="feedback">Feedback</TabsTrigger>
+            <TabsTrigger value="orders">Recent Orders</TabsTrigger>
+            <TabsTrigger value="feedback">Customer Feedback</TabsTrigger>
           </TabsList>
 
           <TabsContent value="orders">

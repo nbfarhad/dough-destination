@@ -23,3 +23,34 @@ export const mockSupabaseOperation = async (operation: string, data: any) => {
     error: null 
   };
 };
+
+// Helper function to upload image to Supabase Storage
+export const uploadImage = async (file: File, bucket: string, path: string): Promise<string | null> => {
+  try {
+    if (!file) return null;
+    
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
+    const filePath = `${path}/${fileName}`;
+    
+    const { error } = await supabase.storage.from(bucket).upload(filePath, file);
+    
+    if (error) {
+      console.error('Error uploading file:', error);
+      return null;
+    }
+    
+    const { data } = supabase.storage.from(bucket).getPublicUrl(filePath);
+    return data.publicUrl;
+  } catch (error) {
+    console.error('Error in uploadImage function:', error);
+    return null;
+  }
+};
+
+// Mock image upload for development
+export const mockImageUpload = async (file: File): Promise<string> => {
+  console.log('Mock image upload:', file.name);
+  // Return a placeholder URL
+  return `/placeholder.svg`;
+};
