@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import Layout from "@/components/layout/Layout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -7,7 +6,7 @@ import { supabase } from "@/lib/supabase";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { PizzaSlice, Tag, Percent, BarChart } from "lucide-react";
+import { Pizza, Tag, Percent, BarChart } from "lucide-react";
 
 interface Order {
   id: string;
@@ -95,7 +94,7 @@ const Admin: React.FC = () => {
           <Card className="hover:shadow-md transition-shadow">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center">
-                <PizzaSlice className="mr-2 h-5 w-5 text-pizza-primary" />
+                <Pizza className="mr-2 h-5 w-5 text-pizza-primary" />
                 Menu Management
               </CardTitle>
               <CardDescription>Manage menu items and categories</CardDescription>
