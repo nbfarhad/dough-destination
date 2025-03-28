@@ -6,7 +6,7 @@ import Cart from "@/components/cart/Cart";
 const CartPage: React.FC = () => {
   return (
     <Layout>
-      <div className="bg-muted py-10">
+      <div className="bg-muted py-10 w-full">
         <div className="pizza-container">
           <h1 className="section-title">Your Cart</h1>
           <p className="section-subtitle">
